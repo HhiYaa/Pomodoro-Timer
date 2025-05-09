@@ -1,19 +1,38 @@
-# Pomodoro-Timer
-
 /**
- * Pomodoro Timer Web App
+ * Pomodoro Timer Web App – Detailed Description
  *
- * A full-stack Pomodoro app with customizable work/break intervals and session tracking.
+ * This full-stack application provides a productivity tool that helps users manage work and break intervals using the Pomodoro technique. It allows starting, pausing, and resetting a customizable timer, and logs each completed session with timestamps for tracking purposes.
  *
- * Features:
- * - React frontend: Timer controls, real-time countdown, session history page
- * - Node.js backend: Logs and retrieves session data via REST API
- * - Responsive UI with audio/visual alerts
+ * Key Features:
+ * - Frontend (React):
+ *   - Interactive timer with Start, Pause, and Reset buttons.
+ *   - Visual session switch between Work and Break modes.
+ *   - Real-time countdown display.
+ *   - History page showing all past sessions with timestamps.
  *
- * Run locally:
- * - Frontend: npm start (port 3000)
- * - Backend: node index.js (port 5000)
- * - Set proxy in package.json for local API requests
+ * - Backend (Node.js + Express):
+ *   - REST API with endpoints to log sessions and retrieve history.
+ *   - In-memory storage (can be upgraded to persistent DB like MongoDB).
  *
- * Future ideas: User authentication, MongoDB/DynamoDB for persistent storage, stats dashboard.
+ * How to Run Locally:
+ * 1️. Frontend:
+ *    - cd to the React app folder
+ *    - Run `npm install` and `npm start` (default: localhost:3000)
+ *
+ * 2️. Backend:
+ *    - cd to server folder
+ *    - Run `npm install` and `node index.js` (default: localhost:5000)
+ *
+ * 3.  Proxy Setup:
+ *    - In frontend/package.json, add: "proxy": "http://localhost:5000"
+ *
+ * Deployment Ideas:
+ * - Frontend: Deploy to Netlify, Vercel, or AWS Amplify.
+ * - Backend: Deploy to Heroku, Railway, or AWS Lambda (via serverless framework).
+ *
+ * Future Enhancements:
+ * - User authentication and personalized session tracking.
+ * - Persistent database integration (MongoDB/DynamoDB).
+ * - Statistics dashboard with charts and productivity insights.
+ * - Audio notifications and customizable session lengths.
  */
