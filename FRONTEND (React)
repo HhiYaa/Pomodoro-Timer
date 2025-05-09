@@ -1,0 +1,120 @@
+// /src/App.jsx
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Timer from './components/Timer';
+import History from './components/History';
+import './App.css';
+
+// Main App component sets up routing for Timer and History pages
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path='/' element={<Timer />} /> {/* Timer page */}
+        <Route path='/history' element={<History />} /> {/* History page */}
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
+// /src/components/Timer.jsx
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+
+// Timer component handles Pomodoro functionality
+function Timer() {
+  const [workTime, setWorkTime] = useState(25 * 60); // Default 25 mins work
+  const [breakTime, setBreakTime] = useState(5 * 60); // Default 5 mins break
+  const [timeLeft, setTimeLeft] = useState(workTime); // Countdown timer
+  const [isRunning, setIsRunning] = useState(false); // Toggle running state
+  const [isWorkSession, setIsWorkSession] = useState(true); // Work/break switch
+  const timerRef = useRef(null); // Ref to store interval ID
+
+  // Start/pause the timer
+  const handleStartPause = () => {
+    if (isRunning) {
+      clearInterval(timerRef.current); // Pause timer
+    } else {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => prev - 1); // Decrease time every second
+      }, 1000);
+    }
+    setIsRunning(!isRunning);
+  };
+
+  // Reset the timer to the start of the current session
+  const handleReset = () => {
+    clearInterval(timerRef.current);
+    setIsRunning(false);
+    setTimeLeft(isWorkSession ? workTime : breakTime);
+  };
+
+  // Handle timer reaching zero: log session, switch session type, reset timer
+  useEffect(() => {
+    if (timeLeft === 0) {
+      clearInterval(timerRef.current); // Stop timer
+      const sessionType = isWorkSession ? 'Work' : 'Break';
+
+      // Send session log to backend
+      axios.post('/api/log', {
+        sessionType,
+        duration: isWorkSession ? workTime : breakTime
+      });
+
+      alert(`${sessionType} session completed!`); // Notify user
+
+      // Switch to the next session and reset timer
+      setIsWorkSession(!isWorkSession);
+      setTimeLeft(!isWorkSession ? workTime : breakTime);
+    }
+  }, [timeLeft]);
+
+  // Format seconds to MM:SS
+  const formatTime = (seconds) => {
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  return (
+    <div>
+      <h1>{isWorkSession ? 'Work Session' : 'Break Session'}</h1>
+      <h2>{formatTime(timeLeft)}</h2>
+      <button onClick={handleStartPause}>{isRunning ? 'Pause' : 'Start'}</button>
+      <button onClick={handleReset}>Reset</button>
+    </div>
+  );
+}
+
+export default Timer;
+
+// /src/components/History.jsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+// History component fetches and displays logged sessions
+function History() {
+  const [sessions, setSessions] = useState([]);
+
+  // Fetch session history on component mount
+  useEffect(() => {
+    axios.get('/api/history').then(res => setSessions(res.data));
+  }, []);
+
+  return (
+    <div>
+      <h1>Session History</h1>
+      <ul>
+        {sessions.map((session, idx) => (
+          <li key={idx}>
+            {session.sessionType} - {Math.floor(session.duration / 60)} min on {new Date(session.timestamp).toLocaleString()}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default History;
